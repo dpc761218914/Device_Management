@@ -1,6 +1,6 @@
 # 设备管理系统
 高德地图JS_API和Node.js整合应用。前台页面和功能还在完善中...
-详细介绍请查看Introduction.md或者简书[详细介绍](https://baidu.com)
+详细介绍请查看Introduction.md或者简书[详细介绍](http://www.jianshu.com/p/ef7d9a0b2e3f)
 
 ##工具
 - node 6.2.0
