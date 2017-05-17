@@ -10,7 +10,7 @@
   
 ##使用
 
-项目下载下来，npm install，访问http://localhost/index    即可。
+项目下载下来，npm install，访问http://localhost/index 。
 要看到效果请先添加路口信息和设备信息，同时路由以全部放行。为了校验用户是否登录，用户可自行加上。
 
 
