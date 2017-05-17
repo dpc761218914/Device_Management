@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>设备批量设置</title>
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="css/global.css" media="all">
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/table.css" />
+		<!--地图-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+		<title>基本地图展示</title>
+		<link rel="stylesheet" type="text/css" href="plugins/timepicki/timepicki.css"/>
+
+		<!--地图-->
+	</head>
+
+	<body>
+
+	<form class="layui-form" action="">
+		<fieldset class="layui-elem-field">
+			<legend>设置工作时间</legend>
+			<div class="layui-field-box">
+				<div class="layui-inline">
+					<!--可以增加默认值-->
+					<label class="layui-form-label">开机时间</label>
+					<input class="layui-input" placeholder="开机时间" id="start_time" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<label class="layui-form-label">关机时间</label>
+					<input class="layui-input" placeholder="关机时间" id="end_time" value="09:00:PM">
+				</div>
+			</div>
+		</fieldset>
+
+		<fieldset class="layui-elem-field">
+			<legend>设置音量</legend>
+			<div class="layui-field-box">
+				<div class="layui-form-item">
+					<div class="layui-inline">
+						<label class="layui-form-label">设置音量(%)</label>
+						<input class="layui-input" placeholder="请输入%" style="width: 80px" value="100" id="volume">
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">正常音量</label>
+						<div class="layui-input-inline" style='width: 70px;'>
+							<select  id="normalVolume" class="select">
+								<option value="0">最小</option>
+								<option value="1" selected="selected">正常</option>
+								<option value="2">较大</option>
+								<option value="3">最大</option>
+							</select>
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">大声音量</label>
+						<div class="layui-input-inline" style='width: 70px;'>
+							<select name="interest" lay-filter="bigVolume"  id="bigVolume">
+								<option value="0">最小</option>
+								<option value="1" selected="selected">正常</option>
+								<option value="2">较大</option>
+								<option value="3">最大</option>
+							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</fieldset>
+
+		<fieldset class="layui-elem-field">
+			<legend>对时</legend>
+			<div class="layui-field-box">
+				计算机时间
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="computer_time" value="08:00:AM">
+				</div>
+				语音模块时间
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" onclick="layui.laydate({elem: this, istime: true, format: 'YYYY-MM-DD hh:mm:ss'})">
+				</div>
+				&nbsp&nbsp
+				<button class="layui-btn layui-btn-small layui-btn-normal">停表节电</button>
+				&nbsp&nbsp
+				<button class="layui-btn layui-btn-small layui-btn-danger">对时</button>
+			</div>
+		</fieldset>
+
+		<fieldset class="layui-elem-field">
+			<legend>大声时段设置</legend>
+			<div class="layui-field-box">
+				第一组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team1_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team1_pm" value="08:00:AM">
+				</div>
+				第二组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team2_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team2_pm" value="08:00:AM">
+				</div>
+			</div>
+			<div class="layui-field-box">
+				第三组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team3_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team3_pm" value="08:00:AM">
+				</div>
+				第四组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team4_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team4_pm" value="08:00:AM">
+				</div>
+			</div>
+			<div class="layui-field-box">
+				第五组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team5_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team5_pm" value="08:00:AM">
+				</div>
+				第六组
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team6_am" value="08:00:AM">
+				</div>
+				<div class="layui-inline">
+					<input class="layui-input" placeholder="选择时间" id="team6_pm" value="08:00:AM">
+				</div>
+			</div>
+		</fieldset>
+
+		<div class="layui-inline" style="float: right">
+		<button class="layui-btn layui-btn-normal" style="margin-right: 80px" id="submit">确定提交</button>
+		</div>
+
+
+
+
+
+	</form>
+
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+	    <!--这里注意jquery的js需要放在上面-->
+	    <script src="plugins/timepicki/jquery-2.1.1.min.js"></script>
+	    <script src="plugins/timepicki/timepicki.js"></script>
+
+
+		<script>
+			/*初始化时间选择框*/
+			$("#start_time").timepicki();
+			$("#end_time").timepicki();
+			$("#team1_am").timepicki();
+			$("#team1_pm").timepicki();
+			$("#team2_am").timepicki();
+			$("#team2_pm").timepicki();
+			$("#team3_am").timepicki();
+			$("#team3_pm").timepicki();
+			$("#team4_am").timepicki();
+			$("#team4_pm").timepicki();
+			$("#team5_am").timepicki();
+			$("#team5_pm").timepicki();
+			$("#team6_am").timepicki();
+			$("#team6_pm").timepicki();
+
+			$("#computer_time").timepicki();
+
+			//记录路口id
+			var lukou_id="";
+
+			layui.config({
+				base: 'plugins/layui/modules/'
+			});
+			layui.use(['icheck','layer','laydate','form'], function() {
+				var $ = layui.jquery,
+						laydate = layui.laydate,
+						form=layui.form(),
+						layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+				//页面初始化的时候执行
+				$(function (){
+					//获取链接中参数的函数（例如：http://localhost/index?username=admin，获取username的值admin）
+					$.getUrlParam = function (name) {
+						var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+						var r = window.location.search.substr(1).match(reg);
+						if (r != null) return unescape(r[2]); return null;
+					}
+					lukou_id = $.getUrlParam('lukou_id');
+
+					//getData(lukou_id,device_id);
+
+				});
+				//点击提交
+				$('#submit').on('click', function() {
+
+					/*工作时间设置*/
+					var startTime=$('#start_time').val();
+					var endTime=$('#end_time').val();
+
+					/*大声时段设置*/
+					var team1_am=$('#team1_am').val();
+					var team1_pm=$('#team1_pm').val();
+					var team2_am=$('#team2_am').val();
+					var team2_pm=$('#team2_pm').val();
+					var team3_am=$('#team3_am').val();
+					var team3_pm=$('#team3_pm').val();
+					var team4_am=$('#team4_am').val();
+					var team4_pm=$('#team4_pm').val();
+					var team5_am=$('#team5_am').val();
+					var team5_pm=$('#team5_pm').val();
+					var team6_am=$('#team6_am').val();
+					var team6_pm=$('#team6_pm').val();
+
+					/*音量设置*/
+					var volume=$("#volume").val();
+					var normalVolume=$("#normalVolume").val();
+					var bigVolume=$("#bigVolume").val();
+
+
+					//通过from表单取值，然后提交
+					$.post("/update_batch_device_msg_by_deviceId",{lukou_id:lukou_id,
+						startTime:startTime,endTime:endTime,
+						team1_am:team1_am,team1_pm:team1_pm,
+						team2_am:team2_am,team2_pm:team2_pm,
+						team3_am:team3_am,team3_pm:team3_pm,
+						team4_am:team4_am,team4_pm:team4_pm,
+						team5_am:team5_am,team5_pm:team5_pm,
+						team6_am:team6_am,team6_pm:team6_pm,
+						volume:volume,normalVolume:normalVolume,
+						bigVolume:bigVolume
+					},function(result){
+						if(result.status==="error"){
+							layer.msg('添加失败!', {
+								icon: 1,
+								time: 1000
+							});
+						}else{
+							layer.msg('批量设备设置成功!', {
+								icon: 1,
+								time: 1000
+							});
+						}
+					});
+					//layer.msg('信息提交成功');
+					//不然当前页面刷新
+					return false;
+				});
+			});
+		</script>
+	</body>
+
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>交警列表</title>
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="css/global.css" media="all">
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/table.css" />
+	</head>
+
+	<body>
+		<div class="admin-main">
+
+			<div class="layui-form-item">
+				<a href="javascript:;" class="layui-btn layui-btn-small" id="add_police">
+					新增交警用户
+				</a>
+			</div>
+
+			<blockquote class="layui-elem-quote">
+				<form class="layui-form">
+						<label class="layui-form-label">选择地区</label>
+						<div class="layui-input-inline" style="width: 100px">
+							<select name="provid" id="provid" lay-filter="provid">
+								<option value="">请选择省</option>
+							</select>
+						</div>
+						<div class="layui-input-inline" style="width: 100px">
+							<select name="cityid" id="cityid" lay-filter="cityid">
+								<option value="">请选择市</option>
+							</select>
+						</div>
+						<div class="layui-input-inline" style="width: 100px">
+							<select name="areaid" id="areaid" lay-filter="areaid">
+								<option value="">请选择县/区</option>
+							</select>
+						</div>
+						<div class="layui-input-block" style="margin-top: 10px">
+							<a href="javascript:;" class="layui-btn layui-btn-small" id="search">
+								查询数据
+							</a>
+						</div>
+				</form>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>交警列表</legend>
+				<div class="layui-field-box">
+					<table class="site-table table-hover">
+						<thead>
+						<tr>
+							<th>序号</th>
+							<th>用户名</th>
+							<th>密码</th>
+							<th>电话</th>
+							<th>真实姓名</th>
+							<th>添加日期</th>
+							<th>所属区编号</th>
+							<th>操作</th>
+						</tr>
+						</thead>
+						<tbody id="tabContent">
+
+						</tbody>
+					</table>
+
+				</div>
+			</fieldset>
+			<div class="admin-table-page">
+				<div id="page" class="page">
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+		<!--省市区级联json文件-->
+		<script type="text/javascript" src="datas/data.js"></script>
+		<!--省市区级联js文件-->
+		<script type="text/javascript" src="js/province.js"></script>
+		<script>
+
+			/*设置省市区级联*/
+			var defaults = {
+				s1:'provid',
+				s2:'cityid',
+				s3:'areaid',
+				v1:null,
+				v2:null,
+				v3:null
+			};
+			/*设置省市区级联*/
+
+			layui.config({
+				base: 'plugins/layui/modules/'
+			});
+
+			layui.use(['icheck','laypage','layer'], function() {
+				var $ = layui.jquery,
+					laypage = layui.laypage,
+					layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+				//页面初始化的时候执行
+				$(function (){
+					//点击搜索按钮
+					$('#search').on('click', function() {
+						//获取所需区域代码
+						addressCode=$('#areaid').val();
+						getData(1);
+					});
+					/*查看交警用户信息*/
+					$('#add_police').on('click',  function() {
+						/*以打开另外一个网页的形式打开弹窗*/
+						layer.open({
+							type: 2,
+							title: '路口详细信息',
+							shadeClose: true,
+							shade: 0.8,
+							area: ['800px', '550px'],
+							content: 'admin_police_add_police.html' //根据id查看某一个路口详情
+						});
+					});
+					/*删除分类*/
+					$('#tabContent').on('click', '.layui-btn-danger', function() {
+						var obj = $(this);
+						var id = obj.parents('tr').attr('id');
+
+						layer.msg("对不起，你没有删除权限！");
+					});
+				});
+				//从后台获取数据函数，获取页数curr的数据
+				function getData(curr){
+					$.post("/get_polices_by_addressCode",{"curr":curr,"addressCode":addressCode},function(result){
+
+						if(result.status=="success")
+						{
+							//拼接html内容
+							var tabContentStr="";
+							//获取后台json数据
+							var mydata=result.data;
+
+							if(mydata.length=="0"){
+								layer.msg('数据为空！');
+							}else{//数据不为空，则提醒加载数据成功
+								for(var i=0;i<mydata.length;i++){
+									var tempStr='<tr id='+mydata[i]._id+'>'+
+												/*序号分页后也必须得变动,每页十条数据*/
+											'<td>'+(i+(curr-1)*10+1)+'</td>'+
+											'<td>'+mydata[i].username+'</td>'+
+											'<td>'+mydata[i].password+'</td>'+
+											'<td>'+mydata[i].phone+'</td>'+
+											'<td>'+mydata[i].realname+'</td>'+
+											'<td>'+mydata[i].createTime+'</td>'+
+											'<td>'+mydata[i].addressCode+'</td>'+
+											'<td>'+
+											'<span class="layui-btn layui-btn-danger layui-btn-mini">删除</span>'+
+											'</td>'+
+											'</tr>'
+									tabContentStr=tabContentStr+tempStr;
+								}
+								//将拼接好的数据填入#tabContent中
+								$("#tabContent").html(tabContentStr);
+								layer.msg('加载数据成功！');
+								//显示分页
+								laypage({
+									cont: 'page', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+									pages: result.pages, //通过后台拿到的总页数
+									curr: curr || 1, //当前页
+									jump: function(obj, first){ //触发分页后的回调
+										if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+											getData(obj.curr);
+										}
+									}
+								});
+							}
+
+						}
+						else{
+							console.log("获取数据失败！！！")
+						}
+					});
+				};
+			});
+
+		</script>
+	</body>
+
+</html>

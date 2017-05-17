@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>故障处理</title>
+	<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="css/global.css" media="all">
+	<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/table.css" />
+</head>
+
+<body>
+<div class="admin-main">
+
+	<blockquote class="layui-elem-quote">
+		<form class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">选择地区</label>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="provid" id="provid" lay-filter="provid" >
+						<option value="">请选择省</option>
+					</select>
+				</div>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="cityid" id="cityid" lay-filter="cityid">
+						<option value="">请选择市</option>
+					</select>
+				</div>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="areaid" id="areaid" lay-filter="areaid">
+						<option value="">请选择县/区</option>
+					</select>
+				</div>
+			</div>
+
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<div class="layui-input-inline" style="width: 100px">
+						<a href="javascript:;" class="layui-btn layui-btn-small" id="searchAll" style="width: 100px">
+							查询全部数据
+						</a>
+					</div>
+
+					<div class="layui-input-inline" style="width: 100px">
+						<a href="javascript:;" class="layui-btn layui-btn-small" id="searchWaitDeal" style="width: 100px">
+							查询未处理
+						</a>
+					</div>
+
+					<div class="layui-input-inline" style="width: 100px">
+						<a href="javascript:;" class="layui-btn layui-btn-small" id="searchDealing" style="width: 100px">
+							查询处理中
+						</a>
+					</div>
+
+					<div class="layui-input-inline" style="width: 100px">
+						<a href="javascript:;" class="layui-btn layui-btn-small" id="searchAlreadyDeal" style="width: 100px">
+							查询已处理
+						</a>
+					</div>
+				</div>
+			</div>
+		</form>
+	</blockquote>
+	<fieldset class="layui-elem-field">
+		<legend>处理列表</legend>
+		<div class="layui-field-box">
+			<table class="site-table table-hover">
+				<thead>
+				<tr>
+					<th>序号</th>
+					<th>路口名称</th>
+					<th>报障人</th>
+					<th>报障人电话</th>
+					<th>记录时间</th>
+					<th>故障问题</th>
+					<th>备注</th>
+					<th>操作</th>
+				</tr>
+				</thead>
+				<tbody id="tabContent">
+				</tbody>
+			</table>
+
+		</div>
+	</fieldset>
+	<div class="admin-table-page">
+		<div id="page" class="page">
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="plugins/layui/layui.js"></script>
+<!--省市区级联json文件-->
+<script type="text/javascript" src="datas/data.js"></script>
+<!--省市区级联js文件-->
+<script type="text/javascript" src="js/province.js"></script>
+<script>
+
+	var type="all";
+	/*设置省市区级联*/
+	var defaults = {
+		s1:'provid',
+		s2:'cityid',
+		s3:'areaid',
+		v1:null,
+		v2:null,
+		v3:null
+	};
+	/*设置省市区级联*/
+
+	layui.config({
+		base: 'plugins/layui/modules/'
+	});
+
+	layui.use(['icheck','laypage','layer','laydate','form'], function() {
+		var $ = layui.jquery,
+				form = layui.form(),
+				laypage = layui.laypage,
+				laydate = layui.laydate,
+				layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+
+		//页面初始化的时候执行
+		$(function (){
+			//点击搜索按钮显示全部数据
+			$('#searchAll').on('click', function() {
+				//获取所需区域代码
+				addressCode=$('#areaid').val();
+				//获得时间区间
+				type="all";
+				getData(1,type);
+
+			});
+			//显示未处理故障
+			$('#searchWaitDeal').on('click', function() {
+				//获取所需区域代码
+				addressCode=$('#areaid').val();
+				//获得时间区间
+				type="0";
+				getData(1,type);
+			});
+
+			//显示处理中
+			$('#searchDealing').on('click', function() {
+				//获取所需区域代码
+				addressCode=$('#areaid').val();
+				//获得时间区间
+				type="1";
+				getData(1,type);
+			})
+
+			//显示已处理故障
+			$('#searchAlreadyDeal').on('click', function() {
+				//获取所需区域代码
+				addressCode=$('#areaid').val();
+				//获得时间区间
+				type="2";
+				getData(1,type);
+			});
+
+
+			/*去处理*/
+			$('#tabContent').on('click', '.layui-btn-danger', function() {
+				var obj = $(this);
+				var problem_id = obj.parents('tr').attr('id');
+				/*以打开另外一个网页的形式打开弹窗*/
+				layer.open({
+					type: 2,
+					title: '路口处理信息',
+					shadeClose: true,
+					shade: 0.8,
+					area: ['800px', '600px'],
+					content: 'admin_problem_deal_problem.html?problem_id='+problem_id, //根据id查看某一个路口详情
+					end:function() {
+						getData(1,type);
+					}
+				});
+			});
+			/*处理中*/
+			$('#tabContent').on('click', '.layui-btn-warm', function() {
+				var obj = $(this);
+				var problem_id = obj.parents('tr').attr('id');
+				/*把字段1改成2*/
+				$.post("/update_warn_deal_to_wait",{problem_id:problem_id},function(result){
+					if(result.status==="error"){
+						layer.msg("获取数据失败");
+					}else{
+						layer.confirm('确定该故障处理完成？', {
+							btn: ['确定','取消'] //按钮
+						}, function(){
+							getData(1,type);
+						}, function(){
+							layer.msg('取消')
+						});
+					}
+				});
+			});
+			/*处理完成*/
+			$('#tabContent').on('click', '.layui-btn-normal', function() {
+				var obj = $(this);
+				var problem_id = obj.parents('tr').attr('id');
+				/*以打开另外一个网页的形式打开弹窗*/
+				layer.open({
+					type: 2,
+					title: '路口处理信息',
+					shadeClose: true,
+					shade: 0.8,
+					area: ['800px', '400px'],
+					content: 'admin_problem_check_detail.html?problem_id='+problem_id //根据id查看某一个路口详情
+				});
+			});
+		});
+		//从后台获取数据函数，获取页数curr的数据
+		function getData(curr,type){
+			$.post("/get_warns_by_addressCode",{"addressCode":addressCode,"curr":curr,"type":type},function(result){
+				if(result.status=="success")
+				{
+					//拼接html内容
+					var tabContentStr="";
+					//获取后台json数据
+					var mydata=result.data;
+					if(mydata.length=="0"){
+						layer.msg('数据为空！');
+						$("#tabContent").html("");
+					}else{//数据不为空，则提醒加载数据成功
+						for(var i=0;i<mydata.length;i++){
+							if(mydata[i].warnStatus==="0"){
+								dealStr='<span class="layui-btn layui-btn-danger layui-btn-mini">去处理</span>';
+							}else if(mydata[i].warnStatus==="1"){
+								dealStr='<span class="layui-btn layui-btn-warm layui-btn-mini">处理中</span>';
+							}else{
+								dealStr='<span class="layui-btn layui-btn-normal layui-btn-mini">处理已完成</span>';
+							}
+
+							var tempStr='<tr id='+mydata[i]._id+'>'+
+										/*序号分页后也必须得变动,每页十条数据*/
+									'<td>'+(i+(curr-1)*10+1)+'</td>'+
+									'<td>'+mydata[i].lukouName+'</td>'+
+									'<td>'+mydata[i].warningMan+'</td>'+
+									'<td>'+mydata[i].warningPhone+'</td>'+
+									'<td>'+mydata[i].recordTime+'</td>'+
+									'<td>'+mydata[i].warnProblem+'</td>'+
+									'<td>'+mydata[i].warnRemark+'</td>'+
+									'<td>'+dealStr+
+									'</td>'+
+									'</tr>'
+							tabContentStr=tabContentStr+tempStr;
+						}
+						//将拼接好的数据填入#tabContent中
+						$("#tabContent").html(tabContentStr);
+						layer.msg('加载数据成功！');
+						//显示分页
+						laypage({
+							cont: 'page', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+							pages: result.pages, //通过后台拿到的总页数
+							curr: curr || 1, //当前页
+							jump: function(obj, first){ //触发分页后的回调
+								if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+									getData(obj.curr,type);
+								}
+							}
+						});
+					}
+				}
+				else{
+					console.log("获取数据失败！！！")
+				}
+			});
+		};
+	});
+
+</script>
+</body>
+
+</html>

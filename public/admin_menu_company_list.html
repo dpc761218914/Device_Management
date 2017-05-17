@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>公司用户列表</title>
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="css/global.css" media="all">
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/table.css" />
+	</head>
+
+	<body>
+		<div class="admin-main">
+
+			<div class="layui-form-item">
+				<a href="javascript:;" class="layui-btn layui-btn-small" id="add_admin">
+					新增公司用户
+				</a>
+			</div>
+
+
+			<fieldset class="layui-elem-field">
+				<legend>公司用户列表</legend>
+				<div class="layui-field-box">
+					<table class="site-table table-hover">
+						<thead>
+						<tr>
+							<th>序号</th>
+							<th>用户名</th>
+							<th>密码</th>
+							<th>电话</th>
+							<th>真实姓名</th>
+							<th>添加日期</th>
+							<th>操作</th>
+						</tr>
+						</thead>
+						<tbody id="tabContent">
+
+						</tbody>
+					</table>
+
+				</div>
+			</fieldset>
+			<div class="admin-table-page">
+				<div id="page" class="page">
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+		<script>
+
+			layui.config({
+				base: 'plugins/layui/modules/'
+			});
+
+			layui.use(['icheck','laypage','layer'], function() {
+				var $ = layui.jquery,
+					laypage = layui.laypage,
+					layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+				//页面初始化的时候执行
+				$(function () {
+					getData(1);
+				});
+
+				/*查看公司用户信息*/
+				$('#add_admin').on('click',  function() {
+					/*以打开另外一个网页的形式打开弹窗*/
+					layer.open({
+						type: 2,
+						title: '路口详细信息',
+						shadeClose: true,
+						shade: 0.8,
+						area: ['800px', '500px'],
+						content: 'admin_company_add_company.html' //根据id查看某一个路口详情
+						end:function() {
+							getData("1");
+						}
+					});
+				});
+
+				/*删除分类*/
+				$('#tabContent').on('click', '.layui-btn-danger', function() {
+					var obj = $(this);
+					var id = obj.parents('tr').attr('id');
+					layer.msg("对不起，你没有删除权限！");
+				});
+
+				//从后台获取数据函数，获取页数curr的数据
+				function getData(curr){
+					$.post("/get_companys",{"curr":curr},function(result){
+
+						if(result.status=="success")
+						{
+							//拼接html内容
+							var tabContentStr="";
+							//获取后台json数据
+							var mydata=result.data;
+
+							if(mydata.length=="0"){
+								layer.msg('数据为空！');
+							}else{//数据不为空，则提醒加载数据成功
+								for(var i=0;i<mydata.length;i++){
+									var tempStr='<tr id='+mydata[i]._id+'>'+
+												/*序号分页后也必须得变动,每页十条数据*/
+											'<td>'+(i+(curr-1)*10+1)+'</td>'+
+											'<td>'+mydata[i].username+'</td>'+
+											'<td>'+mydata[i].password+'</td>'+
+											'<td>'+mydata[i].phone+'</td>'+
+											'<td>'+mydata[i].realname+'</td>'+
+											'<td>'+mydata[i].createTime+'</td>'+
+											'<td>'+
+											'<span class="layui-btn layui-btn-danger layui-btn-mini">删除</span>'+
+											'</td>'+
+											'</tr>'
+									tabContentStr=tabContentStr+tempStr;
+								}
+								//将拼接好的数据填入#tabContent中
+								$("#tabContent").html(tabContentStr);
+								layer.msg('加载数据成功！');
+								//显示分页
+								laypage({
+									cont: 'page', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+									pages: result.pages, //通过后台拿到的总页数
+									curr: curr || 1, //当前页
+									jump: function(obj, first){ //触发分页后的回调
+										if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+											getData(obj.curr);
+										}
+									}
+								});
+							}
+						}
+						else{
+							console.log("获取数据失败！！！")
+						}
+					});
+				};
+
+			});
+
+		</script>
+	</body>
+
+</html>

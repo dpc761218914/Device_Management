@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>报障信息</title>
+    <link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+    <link rel="stylesheet" href="css/global.css" media="all">
+    <link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/table.css" />
+    <!--地图-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+    <!--地图-->
+</head>
+<body>
+    <fieldset class="layui-elem-field layui-field-title">
+        <legend>路口基本信息</legend>
+    </fieldset>
+    <blockquote class="layui-elem-quote">
+        <p>路口名称：<span id="lukouName"></span></p>
+        <p>维护人员：<span id="maintenanceMan"></span></p>
+        <p>维护人员电话：<span id="maintenancePhone"></span></p>
+        <p>施工单位：<span id="constructDep"></span></p>
+        <p>施工时间：<span id="constructTime"></span></p>
+    </blockquote>
+
+
+        <fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+            <form  class="layui-form" action="">
+            <legend>报障</legend>
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">报障人姓名</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="warningName"  autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">报障人电话</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="warningPhone" autocomplete="off" class="layui-input">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">记录时间</label>
+                        <div class="layui-input-inline">
+                            <input type="text" name="recordTime" id="recordTime" lay-verify="date" placeholder="yyyy-mm-dd" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-inline">
+                    <label class="layui-form-label" style="margin-left: -12px;">故障问题</label>
+                    <div class="layui-input-inline" style="margin-left: 11px;">
+                        <select name="quiz" id="warnProblem" style="height: 30px;">
+                            <option value="">请选择问题</option>
+                            <optgroup label="设备外部损坏">
+                                <option value="设备倾斜">设备倾斜</option>
+                                <option value="设备外壳损坏">设备外壳损坏</option>
+                                <option valuequiz="设备箱打不开">设备箱打不开</option>
+                            </optgroup>
+                            <optgroup label="设备内部损坏">
+                                <option value="LED损坏">LED损坏</option>
+                                <option value="语音播报损坏">语音播报损坏</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="layui-form-item layui-form-text">
+                    <label class="layui-form-label" style="margin-left: -12px;">备　　注</label>
+                    <div class="layui-input-block" style="top: 10px;">
+                        <textarea placeholder="请输入内容" class="layui-textarea" id="warnRemark"></textarea>
+                    </div>
+                </div>
+                <div class="layui-form-item">
+                    <div class="layui-input-block">
+                        <button class="layui-btn" id="submit">立即提交</button>
+                        <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+                    </div>
+                </div>
+          </form>
+        </fieldset>
+
+
+
+    <script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+    <script>
+        //记录路口id
+        var lukou_id="";
+        var lukouName="";
+        var addressCode="";
+        layui.config({
+            base: 'plugins/layui/modules/'
+        });
+        layui.use(['form','icheck','layer','laydate'], function() {
+            var $ = layui.jquery;
+                   var form = layui.form(),
+                           laydate = layui.laydate;
+                    layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+            //页面初始化的时候执行
+            $(function (){
+                //获取链接中参数的函数（例如：http://localhost/index?username=admin，获取username的值admin）
+                $.getUrlParam = function (name) {
+                    var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+                    var r = window.location.search.substr(1).match(reg);
+                    if (r != null) return unescape(r[2]); return null;
+                }
+                lukou_id = $.getUrlParam('lukou_id');
+                getData(lukou_id);
+
+
+                //点击提交按钮
+                $('#submit').on('click', function() {
+
+                        var Name=lukouName;
+
+                        var warningName=$('#warningName').val();
+                        var warningPhone=$('#warningPhone').val();
+                        var recordTime=$('#recordTime').val();
+                        var warnRemark=$('#warnRemark').val();
+                        var options=$("#warnProblem option:selected");
+                        var warnProblem =options.text();
+                        //var warnProblem=$("input[name='warnProblem']:checked").val();
+
+                        //通过from表单取值，然后提交
+                        $.post("/add_warn_by_lukouId",{lukou_id:lukou_id,warningName:warningName,warningPhone:warningPhone,
+                            recordTime:recordTime,warnProblem:warnProblem,
+                            warnRemark:warnRemark,lukouName:Name,addressCode:addressCode
+                        },function(result){
+                            if(result.status =="success"){
+                                layer.msg('添加成功!', {
+                                    icon: 1,
+                                    time: 1000,
+
+                                })
+                            }else{
+                                layer.msg('添加失败!', {
+                                    icon: 1,
+                                    time: 1000
+                                });
+                            }
+                        });
+                    return false;
+                    });
+                });
+
+
+            //点击刷新按钮
+            $('#refresh').on('click', function() {
+                getData("1");
+                layer.msg('刷新成功');
+            });
+
+            //根据id从后台获取数据函数。
+            function getData(lukou_id){
+                $.post("/get_lukou_by_lukouId",{lukou_id:lukou_id},function(result){
+
+                    lukouName=result.lukouName;
+                    addressCode=result.addressCode;
+                    var maintenanceMan=result.maintenanceMan;
+                    var maintenancePhone=result.maintenancePhone;
+                    var constructDep=result.constructDep;
+                    var constructTime=result.constructTime;
+
+                    $("#lukouName").html(lukouName);
+                    $("#maintenanceMan").html(maintenanceMan);
+                    $("#maintenancePhone").html(maintenancePhone);
+                    $("#constructDep").html(constructDep);
+                    $("#constructTime").html(constructTime);
+                });
+
+            };
+        });
+    </script>
+</body>
+</html>

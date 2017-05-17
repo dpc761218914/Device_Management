@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>红绿灯人数统计</title>
+	<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="css/global.css" media="all">
+	<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/table.css" />
+</head>
+
+<body>
+<div class="admin-main">
+
+	<blockquote class="layui-elem-quote">
+		<form class="layui-form">
+			<div class="layui-form-item">
+				<label class="layui-form-label">选择地区</label>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="provid" id="provid" lay-filter="provid" >
+						<option value="">请选择省</option>
+					</select>
+				</div>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="cityid" id="cityid" lay-filter="cityid">
+						<option value="">请选择市</option>
+					</select>
+				</div>
+				<div class="layui-input-inline" style="width: 100px">
+					<select name="areaid" id="areaid" lay-filter="areaid">
+						<option value="">请选择县/区</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<label class="layui-form-label">范围选择</label>
+				<div class="layui-input-inline" style="width: 100px">
+					<input class="layui-input" placeholder="开始日" id="LAY_demorange_s">
+				</div>
+				<div class="layui-input-inline" style="width: 100px">
+					<input class="layui-input" placeholder="截止日" id="LAY_demorange_e">
+				</div>
+			</div>
+
+			<div class="layui-form-item">
+				<div class="layui-input-block">
+					<a href="javascript:;" class="layui-btn layui-btn-small" id="search">
+						查询数据
+					</a>
+				</div>
+			</div>
+		</form>
+	</blockquote>
+	<fieldset class="layui-elem-field">
+		<legend>路口通过人数列表</legend>
+		<div class="layui-field-box">
+			<table class="site-table table-hover">
+				<thead>
+				<tr>
+					<th>序号</th>
+					<th>路口名称</th>
+					<th>绿灯经过人数</th>
+					<th>闯红灯人数</th>
+					<th>记录时间</th>
+				</tr>
+				</thead>
+				<tbody id="tabContent">
+					<tr>
+						<td>1</td>
+						<td>前湖大道口</td>
+						<td>1200</td>
+						<td>21</td>
+						<td>2017-12-23</td>
+					</tr>
+					<tr>
+						<td>1</td>
+						<td>前湖大道口</td>
+						<td>1410</td>
+						<td>13</td>
+						<td>2017-12-22</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</fieldset>
+	<div class="admin-table-page">
+		<div id="page" class="page">
+		</div>
+	</div>
+</div>
+<script type="text/javascript" src="plugins/layui/layui.js"></script>
+<!--省市区级联json文件-->
+<script type="text/javascript" src="datas/data.js"></script>
+<!--省市区级联js文件-->
+<script type="text/javascript" src="js/province.js"></script>
+<script>
+
+	/*设置省市区级联*/
+	var defaults = {
+		s1:'provid',
+		s2:'cityid',
+		s3:'areaid',
+		v1:null,
+		v2:null,
+		v3:null
+	};
+	/*设置省市区级联*/
+	var num=1;
+
+	layui.config({
+		base: 'plugins/layui/modules/'
+	});
+
+	layui.use(['icheck','laypage','layer','laydate','form'], function() {
+		var $ = layui.jquery,
+		        form = layui.form(),
+				laypage = layui.laypage,
+				laydate = layui.laydate,
+				layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+		//设置时间区间，注意开始时间和结束时间之间关系
+		var start = {
+			max:laydate.now()
+			,istoday: false
+			,choose: function(datas){
+				end.min = datas; //开始日选好后，重置结束日的最小日期
+				end.start = datas //将结束日的初始值设定为开始日
+			}
+		};
+		var end = {
+			max: laydate.now()
+			,istoday: false
+			,choose: function(datas){
+				start.max = datas; //结束日选好后，重置开始日的最大日期
+			}
+		};
+		document.getElementById('LAY_demorange_s').onclick = function(){
+			start.elem = this;
+			laydate(start);
+		}
+		document.getElementById('LAY_demorange_e').onclick = function(){
+			end.elem = this
+			laydate(end);
+		}
+		//设置时间区间，注意开始时间和结束时间之间关系
+
+		//页面初始化的时候执行
+		$(function (){
+			//点击搜索按钮
+			$('#search').on('click', function() {
+				//获取所需区域代码
+				addressCode=$('#areaid').val();
+
+				var tabContent="";
+				var num=parseInt(10*Math.random());
+				for(var i=0;i<num;i++){
+					var tempStr='<tr>'+
+							'<td>'+i+'</td>'+
+							'<td>前湖大道口</td>'+
+							'<td>1410</td>'+
+							'<td>'+i+'</td>'+
+							'<td>2017-12-22</td>'+
+							'</tr>';
+					tabContent=tabContent+tempStr;
+				}
+
+
+
+
+				$("#tabContent").html(tabContent);
+
+			});
+		});
+		//从后台获取数据函数，获取页数curr的数据
+		function getData(){
+			for (var i=0;i<num;i++){
+
+			}
+		};
+	});
+
+</script>
+</body>
+
+</html>

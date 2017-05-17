@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>路口列表</title>
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="css/global.css" media="all">
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/table.css" />
+		<!--地图-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+		<title>基本地图展示</title>
+		<script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+		<script src="http://webapi.amap.com/maps?v=1.3&key=bce34716ae32281536e4b60b85fe3dc8"></script>
+		<script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+		<!--地图-->
+	</head>
+
+	<body>
+		<div style="float: left;width: 100%" >
+		<div id="container" style="width: 100%;height: 450px;float: left;margin-top: 10px">
+		</div>
+
+		<div id="list" class="layui-field-box" style="width: 100%;float: left;">
+
+			<div class="layui-form-item">
+				<a href="javascript:;" class="layui-btn layui-btn-small layui-btn-danger" id="fold" style="height: 24px">
+					<i class="layui-icon" >&#xe619;</i>
+				</a>
+			</div>
+
+			<table class="site-table table-hover" style="width: 100%" >
+				<thead>
+				<tr>
+					<th>序号</th>
+					<th>路口名称</th>
+					<th>工作状态</th>
+					<th>维护人员</th>
+					<th>维护电话</th>
+					<th>是否需报障</th>
+					<th>设备信息</th>
+					<th>操作</th>
+				</tr>
+				</thead>
+				<tbody id="tabContent" >
+				</tbody>
+			</table>
+			<div >
+				<div id="page" class="page">
+				</div>
+			</div>
+		</div>
+	</div>
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+		<script>
+			layui.config({
+				base: 'plugins/layui/modules/'
+			});
+
+			var map = new AMap.Map('container', {
+				resizeEnable: true,
+				zoom:13,
+			});
+
+			var markers = [];
+			/*点击图标探出信息窗体*/
+			var infoWindow = new AMap.InfoWindow({offset: new AMap.Pixel(0, -30)});
+
+			//用于记录折叠状态
+			var foldType="0";
+
+
+			layui.use(['icheck','laypage','layer'], function() {
+				var $ = layui.jquery,
+						laypage = layui.laypage,
+						layer = parent.layer === undefined ? layui.layer : parent.layer;
+				//页面初始化的时候执行
+				$(function (){
+					getData("1");
+				});
+
+				//点击折叠和展开地图
+				$('#fold').on('click', function() {
+					if(foldType==="0"){
+						foldType="1";
+						$('#container').hide(1000);
+						$('#fold').html("<i class='layui-icon' id='fold_type'>&#xe61a;</i>");
+					}else if(foldType==="1"){
+						foldType="0"
+						$('#container').show(1000);
+						$('#fold').html("<i class='layui-icon' id='fold_type'>&#xe619;</i>");
+					}
+				});
+
+				/*查看设备信息*/
+				$('#tabContent').on('click', '.layui-btn-normal', function() {
+					var obj = $(this);
+					//获取路口id
+					var lukou_id = obj.parents('tr').attr('id');
+					/*以打开另外一个网页的形式打开弹窗*/
+					layer.open({
+						type: 2,
+						title: '路口详细信息',
+						shadeClose: true,
+						shade: 0.8,
+						area: ['1100px', '700px'],
+						content: 'admin_lukou_check_details.html?lukou_id='+lukou_id //根据id查看某一个路口详情
+					});
+				});
+
+				/*删除操作*/
+				$('#tabContent').on('click', '.layui-btn-danger', function() {
+					layer.msg("对不起，您没有删除权限！");
+				});
+
+				/*报障信息*/
+				$('#tabContent').on('click', '.layui-btn-primary', function() {
+					var obj = $(this);
+					//获取路口id
+					var lukou_id = obj.parents('tr').attr('id');
+					/*以打开另外一个网页的形式打开弹窗*/
+					layer.open({
+						type: 2,
+						title: '报障信息',
+						shadeClose: true,
+						shade: 0.8,
+						area: ['1050px', '600px'],
+						content:'admin_lukou_set_warn.html?lukou_id='+lukou_id,//根据id查看某一个路口详情
+						end:function() {
+							getData("1");
+						}
+					});
+				});
+
+				//从后台获取数据函数，获取根据区获取数据
+				function getData(curr){
+					$.post("/police/get_lukous_by_addressCode",{curr:curr},function(result){
+						//重新获取的时候需要清空地图上的marker信息
+						map.remove(markers);
+						//拼接html内容
+						var tabContent="";
+						//获取后台json数据
+						var mydata=result.data;
+						for(var i=0;i<mydata.length;i++){
+							if(mydata[i].lukouStatus=="0"){
+								/*添加正常地图markers*/
+								marker = new AMap.Marker({
+									map: map,
+									/*进行序号排序*/
+									icon: 'http://webapi.amap.com/theme/v1.3/markers/n/mark_b'+((curr-1)*10+i+1)+'.png',
+									position: [mydata[i].jingdu, mydata[i].weidu],
+								});
+							}else{
+								/*添加错误地图markers*/
+								marker = new AMap.Marker({
+									map: map,
+									/*进行序号排序*/
+									icon: 'http://webapi.amap.com/theme/v1.3/markers/n/mark_r'+((curr-1)*10+i+1)+'.png',
+									position: [mydata[i].jingdu, mydata[i].weidu],
+								});
+
+							}
+							if(mydata[i].lukouStatus=="0"){
+								statusStr='<p>路口状态：正常 </p>';
+							}if(mydata[i].lukouStatus=="1"){
+								statusStr='<p>路口状态：<span style="color: red">维护中</span> </p>';
+							}if(mydata[i].lukouStatus=="2"){
+								statusStr='<p>路口状态：<span style="color: red">发生故障</span> </p>';
+							}
+							marker._id=mydata[i]._id;
+
+							//设置信息窗体内容
+							marker.content = '<p>路口名称：' +mydata[i].lukouName + '</p>'+
+											'<p>维护人员：' +mydata[i].maintenanceMan + '</p>'+
+									        '<p>联系电话：'+mydata[i].maintenancePhone +'</p>'+
+						                 	'<p>设备数量：'+mydata[i].deviceInfo.length +'</p>'+statusStr;
+							//点击左键
+							marker.on('click', markerClick);
+							//绑定鼠标右击事件——弹出右键菜单
+							marker.on('rightclick', function(e) {
+								//创建右键菜单
+								var contextMenu = new AMap.ContextMenu();
+								//菜单1
+								contextMenu.addItem("设备报障", function() {
+									layer.open({
+										type: 2,
+										title: '报障信息',
+										shadeClose: true,
+										shade: 0.8,
+										area: ['1050px', '600px'],
+										content:'admin_lukou_set_warn.html?lukou_id='+ e.target._id,//根据id查看某一个路口详情
+										end:function() {
+											getData("1");
+										}
+									});
+								}, 0);
+								//菜单2
+								contextMenu.addItem("状态检测", function() {
+									/*测试接口是否联通*/
+									layer.msg('批量测试该路口所有设备是否在线...', {
+										icon: 16
+										,shade: 0.01
+									});
+									setTimeout(function(){
+										layer.msg('测试全部通过...');
+									}, 2000);
+								}, 1);
+								//菜单3
+								contextMenu.addItem("参数设置", function() {
+									/*批量设置*/
+									layer.open({
+										type: 2,
+										title: '设备参数批量设置',
+										shadeClose: true,
+										shade: 0.8,
+										area: ['900px', '700px'],
+										//将路口id和设备id都传过去
+										content: 'admin_lukou_details_batch_set.html?lukou_id='+e.target._id
+									});
+								}, 2);
+								//打开弹出菜单
+								contextMenu.open(map, e.lnglat);
+
+							});
+
+							if(mydata[i].lukouStatus=="0"){
+								lukouStatusStr='<p>正常 </p>';
+								problemStr='<td><span class="layui-btn layui-btn-primary layui-btn-mini">去报障</span></td>';
+							}if(mydata[i].lukouStatus=="1"){
+								lukouStatusStr='<p style="color: red">维护中 </p>';
+								problemStr='<td><span>否</span></td>';
+							}if(mydata[i].lukouStatus=="2"){
+								lukouStatusStr='<p style="color: red">发生故障 </p>';
+								problemStr='<td><span>否</span></td>';
+							}
+
+                            //将marker装入集合中
+							markers.push(marker);
+							//兴趣点自适应居中显示
+							map.setFitView();
+							/*添加到地图markers*/
+							var tempStr='<tr id='+mydata[i]._id+'>'+
+									'<td>'+((curr-1)*10+i+1)+'</td>'+
+									'<td>'+mydata[i].lukouName+'</td>'+
+									'<td>'+lukouStatusStr+'</td>'+
+									'<td>'+mydata[i].maintenanceMan+'</td>'+
+									'<td>'+mydata[i].maintenancePhone+'</td>'+ problemStr+
+									'<td>'+
+									'<span class="layui-btn layui-btn-normal layui-btn-mini">设备信息</span>'+
+									'</td>'+
+									'<td>'+
+									'<span class="layui-btn layui-btn-danger layui-btn-mini">删除</span>'+
+									'</td>'+
+									'</tr>'
+							tabContent=tabContent+tempStr;
+						}
+
+						//添加窗体监听事件
+						function markerClick(e) {
+							infoWindow.setContent(e.target.content);
+							infoWindow.open(map, e.target.getPosition());
+							// 设置缩放级别和中心点
+							map.setZoomAndCenter(13, e.target.getPosition());
+						}
+
+
+						//将拼接好的数据填入#tabContent中
+						$("#tabContent").html(tabContent);
+
+						//显示分页
+						laypage({
+							cont: 'page', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+							pages: result.pages, //通过后台拿到的总页数
+							curr: curr || 1, //当前页
+							jump: function(obj, first){ //触发分页后的回调
+								if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+									getData(obj.curr);
+								}
+							}
+						});
+					});
+				};
+			});
+		</script>
+	</body>
+
+</html>

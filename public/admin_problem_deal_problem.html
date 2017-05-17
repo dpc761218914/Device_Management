@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>确定完成设备报障处理</title>
+	<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="css/global.css" media="all">
+	<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/table.css" />
+	<!--地图-->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+	<title>设备保障信息处理</title>
+	<script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+	<script src="http://webapi.amap.com/maps?v=1.3&key=bce34716ae32281536e4b60b85fe3dc8"></script>
+	<script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+	<!--地图-->
+</head>
+
+<body>
+<fieldset class="layui-elem-field layui-field-title">
+	<legend>设备信息</legend>
+</fieldset>
+<blockquote class="layui-elem-quote">
+	<p>报障编号：<span id="lukouName"></span></p>
+	<p>报障人：<span id="warningMan"></span></p>
+	<p>报障人员电话：<span id="warningPhone"></span></p>
+</blockquote>
+
+<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+	<legend>录入相关维修信息</legend>
+</fieldset>
+
+<form class="layui-form" action="">
+	<div class="layui-form-item">
+		<label class="layui-form-label">维　修　人</label>
+		<div class="layui-input-block">
+			<input name="title" lay-verify="title" autocomplete="off" placeholder="请输入维修人信息" id="maintenanceMan" class="layui-input" type="text">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">维修人电话</label>
+		<div class="layui-input-block">
+			<input name="title" lay-verify="title" autocomplete="off" placeholder="请输入维修人电话" id="maintenancePhone" class="layui-input" type="text">
+		</div>
+	</div>
+
+	<div class="layui-form-item">
+		<label class="layui-form-label">备　　　注</label>
+		<div class="layui-input-block">
+			<input name="username" lay-verify="required" placeholder="请输入备注信息" id="remarkMessage" autocomplete="off" class="layui-input" type="text">
+		</div>
+	</div>
+	<div class="layui-form-item">
+		<div class="layui-input-block">
+			<button class="layui-btn" id="submit">立即提交</button>
+			<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+		</div>
+	</div>
+</form>
+
+
+
+<script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+<script>
+	//记录路口id
+	var problem_id="";
+	layui.config({
+		base: 'plugins/layui/modules/'
+	});
+	layui.use(['icheck','laypage','layer'], function() {
+		var $ = layui.jquery,
+				laypage = layui.laypage,
+				layer = parent.layer === undefined ? layui.layer : parent.layer;
+		//页面初始化的时候执行
+		$(function (){
+			//获取链接中参数的函数（例如：http://localhost/index?username=admin，获取username的值admin）
+			$.getUrlParam = function (name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if (r != null) return unescape(r[2]); return null;
+			}
+			problem_id = $.getUrlParam('problem_id');
+			getData(problem_id);
+
+			//点击提交按钮
+			$('#submit').on('click', function() {
+
+				var maintenanceMan=$('#maintenanceMan').val();
+				var maintenancePhone=$('#maintenancePhone').val();
+				var remarkMessage=$('#remarkMessage').val();
+				//var warnProblem=$("input[name='warnProblem']:checked").val();
+
+				//通过from表单取值，然后提交
+				$.post("/update_service_by_problemId",{problem_id:problem_id,maintenanceMan:maintenanceMan,maintenancePhone:maintenancePhone,
+					remarkMessage:remarkMessage
+				},function(result){
+					if(result.status =="success"){
+						layer.msg('添加成功!', {
+							icon: 1,
+							time: 1000,
+						})
+					}else{
+						layer.msg('添加失败!', {
+							icon: 1,
+							time: 1000
+						});
+					}
+				});
+				return false;
+			});
+		});
+		//点击刷新按钮
+		$('#refresh').on('click', function() {
+			getData("1");
+			layer.msg('刷新成功');
+		});
+
+		//根据id从后台获取数据函数。
+		function getData(problem_id){
+			$.post("/get_warn_msg_by_warnId",{problem_id:problem_id},function(result){
+				var lukouName=result.lukouName;
+				var warningMan=result.warningMan;
+				var warningPhone=result.warningPhone;
+				$("#lukouName").html(lukouName);
+				$("#warningMan").html(warningMan);
+				$("#warningPhone").html(warningPhone);
+			});
+		};
+	});
+</script>
+</body>
+
+</html>

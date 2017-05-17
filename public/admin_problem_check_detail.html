@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="UTF-8">
+	<title>查看报障记录详情</title>
+	<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+	<link rel="stylesheet" href="css/global.css" media="all">
+	<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+	<link rel="stylesheet" href="css/table.css" />
+	<!--地图-->
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+
+
+	<!--地图-->
+</head>
+
+<body>
+<fieldset class="layui-elem-field layui-field-title">
+	<legend>设备信息</legend>
+</fieldset>
+
+
+<blockquote class="layui-elem-quote">
+	<p>路口名称：<span id="lukouName"></span></p>
+	<p>报障人：<span id="warningMan"></span></p>
+	<p>报障人员电话：<span id="warningPhone"></span></p>
+	<p>记录时间：<span id="recordTime"></span></p>
+	<p>故障问题：<span id="warnProblem"></span></p>
+	<p>故障备注：<span id="warnRemark"></span></p>
+	<hr>
+	<p>维护人员：<span id="maintenanceMan"></span></p>
+	<p>维护人员电话：<span id="maintenancePhone"></span></p>
+	<p>维护人员备注信息：<span id="remarkMessage"></span></p>
+</blockquote>
+
+
+
+<script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+<script>
+	//记录路口id
+	var problem_id="";
+	layui.config({
+		base: 'plugins/layui/modules/'
+	});
+	layui.use(['icheck','layer'], function() {
+		var $ = layui.jquery,
+				layer = parent.layer === undefined ? layui.layer : parent.layer;
+		//页面初始化的时候执行
+		$(function (){
+			//获取链接中参数的函数（例如：http://localhost/index?username=admin，获取username的值admin）
+			$.getUrlParam = function (name) {
+				var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)");
+				var r = window.location.search.substr(1).match(reg);
+				if (r != null) return unescape(r[2]); return null;
+			}
+			problem_id = $.getUrlParam('problem_id');
+			getData(problem_id);
+		});
+
+
+		//根据id从后台获取数据函数。
+		function getData(problem_id){
+			$.post("/get_warn_all_msg_by_warnId",{problem_id:problem_id},function(result){
+				if(result.status==="error"){
+					layer.msg("获取数据失败");
+				}else{
+					data=result.result;
+					$("#lukouName").html(data.lukouName);
+					$("#warningMan").html(data.warningMan);
+					$("#warningPhone").html(data.warningPhone);
+					$("#recordTime").html(data.recordTime);
+					$("#warnProblem").html(data.warnProblem);
+					$("#warnRemark").html(data.warnRemark);
+					$("#maintenanceMan").html(data.maintenanceMan);
+					$("#maintenancePhone").html(data.maintenancePhone);
+					$("#remarkMessage").html(data.remarkMessage);
+				}
+			});
+		};
+	});
+</script>
+</body>
+
+</html>

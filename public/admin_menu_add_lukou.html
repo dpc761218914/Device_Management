@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="utf-8">
+		<title>添加设备</title>
+		<meta name="renderer" content="webkit">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="format-detection" content="telephone=no">
+
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+
+		<!--地图-->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="initial-scale=1.0, user-scalable=no, width=device-width">
+		<title>基本地图展示</title>
+		<script src="http://cache.amap.com/lbs/static/es5.min.js"></script>
+		<script src="http://webapi.amap.com/maps?v=1.3&key=bce34716ae32281536e4b60b85fe3dc8"></script>
+		<script type="text/javascript" src="http://cache.amap.com/lbs/static/addToolbar.js"></script>
+		<script src="//cdn.bootcss.com/jquery/3.1.1/jquery.min.js"></script>
+		<!--地图-->
+	</head>
+
+	<body>
+		<div style="margin: 15px;">
+			<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+				<legend>添加路口信息</legend>
+			</fieldset>
+
+			<form class="layui-form" action="">
+				<div style="width: 100%;float: left">
+					<div style="width: 55%;float: left">
+						<div class="layui-form-item">
+							<label class="layui-form-label">路口名称</label>
+							<div class="layui-input-block">
+								<input type="text" id="lukouName" lay-verify="title" autocomplete="off" placeholder="请输入路口名称" class="layui-input" style="width: 300px">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">施工单位</label>
+								<div class="layui-input-inline">
+									<input type="text" id="constructDep" autocomplete="off" class="layui-input"  placeholder="请输入路口的施工单位">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">施工日期</label>
+								<div class="layui-input-block">
+									<input type="text" id="constructTime" id="date" lay-verify="date" placeholder="yyyy-mm-dd" autocomplete="off" class="layui-input" onclick="layui.laydate({elem: this})">
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">维护人员</label>
+								<div class="layui-input-inline">
+									<input type="text" id="maintenanceMan"  autocomplete="off" class="layui-input"  placeholder="请输入该路口的维护人员">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">路口编号</label>
+								<div class="layui-input-block">
+									<input type="text" id="lukouCode" autocomplete="off" class="layui-input"  placeholder="请输入该路口编号">
+								</div>
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">维护电话</label>
+								<div class="layui-input-inline">
+									<input type="text" id="maintenancePhone"  autocomplete="off" class="layui-input"  placeholder="请输入维护人员联系方式">
+								</div>
+							</div>
+
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-inline">
+								<label class="layui-form-label">设备经度</label>
+								<div class="layui-input-inline">
+									<input type="text" id="jingdu"  readonly="readonly" autocomplete="off" class="layui-input"  placeholder="经纬度从地图选取">
+								</div>
+							</div>
+							<div class="layui-inline">
+								<label class="layui-form-label">设备纬度</label>
+								<div class="layui-input-block">
+									<input type="text" id="weidu" readonly="readonly" autocomplete="off" class="layui-input">
+								</div>
+							</div>
+						</div>
+
+						<div class="layui-form-item">
+							<label class="layui-form-label">路口状态</label>
+							<div class="layui-input-block">
+								<input type="radio" name="lukouStatus" value="0" title="正常">
+								<input type="radio" name="lukouStatus" value="1" title="维护中">
+								<input type="radio" name="lukouStatus" value="2" title="发生故障">
+							</div>
+						</div>
+						<div class="layui-form-item">
+							<div class="layui-input-block">
+								<!--省市区联动-->
+								<div class="layui-form-item">
+									<div class="layui-input-inline" style="width: 100px">
+										<select name="provid" id="provid" lay-filter="provid" >
+											<option value="">请选择省</option>
+										</select>
+									</div>
+									<div class="layui-input-inline" style="width: 100px">
+										<select name="cityid" id="cityid" lay-filter="cityid">
+											<option value="">请选择市</option>
+										</select>
+									</div>
+									<div class="layui-input-inline" style="width: 100px">
+										<select name="areaid" id="areaid" lay-filter="areaid">
+											<option value="">请选择县/区</option>
+										</select>
+									</div>
+								</div>
+							</div>
+						</div>
+
+
+					</div>
+					<div style="width: 45%;float: left">
+						<div id="container" style="height: 400px;">
+						</div>
+					</div>
+				</div>
+
+				<div class="layui-form-item">
+					<div class="layui-input-block">
+						<button class="layui-btn" lay-submit="" lay-filter="demo1">插入路口信息</button>
+						<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+					</div>
+				</div>
+
+
+
+				<fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+					<legend>添加设备信息</legend>
+				</fieldset>
+
+				<div class="layui-form-item">
+					<div class="layui-inline">
+						<label class="layui-form-label">设备编号</label>
+						<div class="layui-input-inline">
+							<input type="text" id="deviceNumber"  autocomplete="off" class="layui-input"  placeholder="请输入设备编号">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">主桩名称</label>
+						<div class="layui-input-inline">
+							<input type="text" id="deviceOne"  autocomplete="off" class="layui-input" placeholder="请输入主桩名称">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">主桩ip</label>
+						<div class="layui-input-block">
+							<input type="text" id="deviceOneIp" autocomplete="off" class="layui-input"  placeholder="请输入主桩IP地址">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">副桩</label>
+						<div class="layui-input-inline">
+							<input type="text" id="deviceTwo"  autocomplete="off" class="layui-input"  placeholder="请输入副桩名称">
+						</div>
+					</div>
+					<div class="layui-inline">
+						<label class="layui-form-label">副桩ip</label>
+						<div class="layui-input-block">
+							<input type="text" id="deviceTwoIp" autocomplete="off" class="layui-input"  placeholder="请输入副桩IP地址">
+						</div>
+					</div>
+
+					<div class="layui-form-item">
+						<div class="layui-input-block">
+							<button class="layui-btn" lay-submit="" lay-filter="demo2">插入设备信息</button>
+							<button type="reset" class="layui-btn layui-btn-primary">重置</button>
+						</div>
+					</div>
+
+
+					<fieldset class="layui-elem-field layui-field-title" style="margin-top: 50px;">
+						<legend>设备列表</legend>
+					</fieldset>
+
+					<table class="layui-table" lay-skin="line">
+						<colgroup>
+							<col width="150">
+							<col width="150">
+							<col width="200">
+							<col>
+						</colgroup>
+						<thead>
+						<tr>
+							<th>设备编号</th>
+							<th>主桩</th>
+							<th>主桩ip</th>
+							<th>副桩</th>
+							<th>副桩ip</th>
+						</tr>
+						</thead>
+						<tbody id="deviceList">
+
+						</tbody>
+					</table>
+
+				</div>
+			</form>
+		</div>
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+		<!--省市区级联json文件-->
+		<script type="text/javascript" src="datas/data.js"></script>
+		<!--省市区级联js文件-->
+		<script type="text/javascript" src="js/province.js"></script>
+		<script>
+			var lukou_id;
+
+			layui.use(['form', 'laydate'], function() {
+				var form = layui.form(),
+					layer = layui.layer,
+					laydate = layui.laydate,
+				/*注意这里没有引入jquery，后面有引用会报错*/
+				     $= layui.jquery;
+				//页面初始化的时候执行
+				$(function (){
+				});
+				var map = new AMap.Map('container', {
+					resizeEnable: true,
+					zoom:15,
+				});
+
+				//为地图注册click事件获取鼠标点击出的经纬度坐标
+				var clickEventListener = map.on('click', function(e) {
+					var marker;
+					document.getElementById("jingdu").value = e.lnglat.getLng();
+					document.getElementById("weidu").value =  e.lnglat.getLat();
+					//添加标记点
+					marker = new AMap.Marker({
+						icon: "http://webapi.amap.com/theme/v1.3/markers/n/mark_b.png",
+						position: [e.lnglat.getLng(), e.lnglat.getLat()]
+					});
+					marker.setMap(map);
+				});
+				//为地图注册click事件获取鼠标点击出的经纬度坐标
+				//监听提交设备信息
+				form.on('submit(demo1)', function(data) {
+					var lukouName=$("#lukouName").val();
+					var constructDep=$("#constructDep").val();
+					var constructTime=$("#constructTime").val();
+					var maintenanceMan=$("#maintenanceMan").val();
+					var lukouCode=$("#lukouCode").val();
+					var maintenancePhone=$("#maintenancePhone").val();
+					var addressCode=$('#areaid').val();
+					var jingdu=$("#jingdu").val();
+					var weidu=$("#weidu").val();
+					//插入设备状态
+					var lukouStatus=$("input[name='lukouStatus']:checked").val();
+					//通过from表单取值，然后提交
+					 $.post("/add_lukou",{lukouName:lukouName,constructDep:constructDep,constructTime:constructTime,
+						 maintenanceMan:maintenanceMan,lukouCode:lukouCode,maintenancePhone:maintenancePhone,
+						 addressCode:addressCode,jingdu:jingdu,weidu:weidu,lukouStatus:lukouStatus},function(result){
+					 if(result.status==="success"){
+						 lukou_id=result.lukou_id;
+						 layer.msg('添加成功!', {
+							 icon: 1,
+							 time: 1000
+						 });
+					 }else{
+						 layer.msg('添加失败!', {
+							 icon: 1,
+							 time: 1000
+						 });
+						 }
+						 });
+					 return false;
+				});
+				//监听添加柱子信息
+				form.on('submit(demo2)', function(data) {
+					var deviceNumber=$("#deviceNumber").val();
+					var deviceOne=$("#deviceOne").val();
+					var deviceOneIp=$("#deviceOneIp").val();
+					var deviceTwo=$("#deviceTwo").val();
+					var deviceTwoIp=$("#deviceTwoIp").val();
+
+					//通过from表单取值，然后提交
+					$.post("/add_device_by_lukouId",{lukou_id:lukou_id,deviceNumber:deviceNumber,deviceOne:deviceOne,
+						deviceOneIp:deviceOneIp,deviceTwo:deviceTwo,deviceTwoIp:deviceTwoIp},function(result){
+						if(result.status==="success"){
+							console.log(result.data)
+							var deviceList=result.data;
+							var deviceContent;
+							for(var i=0;i<deviceList.length;i++){
+								deviceContent=deviceContent+"<tr><td>"+deviceList[i].deviceNumber+"</td>"
+										+"<td>"+deviceList[i].deviceOne+"</td>"
+										+"<td>"+deviceList[i].deviceOneIp+"</td>"
+										+"<td>"+deviceList[i].deviceTwo+"</td>"
+										+"<td>"+deviceList[i].deviceTwoIp+"</td></tr>"
+							}
+							$("#deviceList").html(deviceContent);
+
+							layer.msg('添加成功!', {
+								icon: 1,
+								time: 1000
+							});
+						}else{
+							layer.msg('添加失败!', {
+								icon: 1,
+								time: 1000
+							});
+						}
+					});
+					return false;
+				});
+			});
+		</script>
+	</body>
+
+</html>

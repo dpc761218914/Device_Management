@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+
+	<head>
+		<meta charset="UTF-8">
+		<title>管理员日志记录</title>
+		<link rel="stylesheet" href="plugins/layui/css/layui.css" media="all" />
+		<link rel="stylesheet" href="css/global.css" media="all">
+		<link rel="stylesheet" href="plugins/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="css/table.css" />
+	</head>
+
+	<body>
+		<div class="admin-main">
+			<blockquote class="layui-elem-quote">
+				<a href="javascript:;" class="layui-btn layui-btn-small" id="search">
+					查询数据
+				</a>
+			</blockquote>
+			<fieldset class="layui-elem-field">
+				<legend>日志列表</legend>
+				<div class="layui-field-box">
+					<table class="site-table table-hover">
+						<thead>
+						<tr>
+							<th>序号</th>
+							<th>用户名</th>
+							<th>ip地址</th>
+							<th>所做操作</th>
+							<th>添加日期</th>
+						</tr>
+						</thead>
+						<tbody id="tabContent">
+							<tr>
+								<td>1</td>
+								<td>张三</td>
+								<td>192.168.12.21</td>
+								<td>添加路口信息</td>
+								<td>2017-12-15</td>
+							</tr>
+						</tbody>
+					</table>
+
+				</div>
+			</fieldset>
+			<div class="admin-table-page">
+				<div id="page" class="page">
+				</div>
+			</div>
+		</div>
+		<script type="text/javascript" src="plugins/layui/layui.js"></script>
+
+		<script>
+
+
+			layui.config({
+				base: 'plugins/layui/modules/'
+			});
+
+			layui.use(['icheck','laypage','layer'], function() {
+				var $ = layui.jquery,
+					laypage = layui.laypage,
+					layer = parent.layer === undefined ? layui.layer : parent.layer;
+
+				//页面初始化的时候执行
+				$(function (){
+					//点击搜索按钮
+					$('#search').on('click', function() {
+						layer.msg("对不起，您无权限查看...");
+					});
+
+				});
+				//从后台获取数据函数，获取页数curr的数据
+				function getData(curr){
+					$.post("/polices",{"curr":curr,"addressCode":addressCode},function(result){
+						if(result.status=="success")
+						{
+							//拼接html内容
+							var tabContentStr="";
+							//获取后台json数据
+							var mydata=result.data;
+
+							if(mydata.length=="0"){
+								layer.msg('数据为空！');
+							}else{//数据不为空，则提醒加载数据成功
+								for(var i=0;i<mydata.length;i++){
+									var tempStr='<tr id='+mydata[i]._id+'>'+
+												/*序号分页后也必须得变动,每页十条数据*/
+											'<td>'+(i+(curr-1)*10+1)+'</td>'+
+											'<td>'+mydata[i].username+'</td>'+
+											'<td>'+mydata[i].password+'</td>'+
+											'<td>'+mydata[i].phone+'</td>'+
+											'<td>'+mydata[i].realname+'</td>'+
+											'<td>'+mydata[i].createTime+'</td>'+
+											'<td>'+mydata[i].addressCode+'</td>'+
+											'<td>'+
+											'<span class="layui-btn layui-btn-danger layui-btn-mini">删除</span>'+
+											'</td>'+
+											'</tr>'
+									tabContentStr=tabContentStr+tempStr;
+								}
+								//将拼接好的数据填入#tabContent中
+								$("#tabContent").html(tabContentStr);
+								layer.msg('加载数据成功！');
+								//显示分页
+								laypage({
+									cont: 'page', //容器。值支持id名、原生dom对象，jquery对象。【如该容器为】：<div id="page1"></div>
+									pages: result.pages, //通过后台拿到的总页数
+									curr: curr || 1, //当前页
+									jump: function(obj, first){ //触发分页后的回调
+										if(!first){ //点击跳页触发函数自身，并传递当前页：obj.curr
+											getData(obj.curr);
+										}
+									}
+								});
+							}
+
+						}
+						else{
+							console.log("获取数据失败！！！")
+						}
+					});
+				};
+
+			});
+
+		</script>
+	</body>
+
+</html>
