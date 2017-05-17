@@ -14,7 +14,7 @@
 要看到效果请先添加路口信息和设备信息，同时路由以全部放行。为了校验用户是否登录，用户可自行加上。
 
 
-###部分截图：
+###部分项目截图：
 
 ![地图展示.png](http://upload-images.jianshu.io/upload_images/2227968-c302c0ca290ea10f.png?imageMogr2/auto-orient/strip%7CimageView2/2/w/1240)
 
